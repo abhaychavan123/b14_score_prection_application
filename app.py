@@ -16,7 +16,7 @@ st.set_page_config(
 st.markdown("""
     <style>
     .main {
-        background-color: #f8fafc;
+        background-color: #fdfbf7;
     }
     
     /* Modern card container with subtle shadow */
