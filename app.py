@@ -1,1 +1,140 @@
+import os
+import pickle
+import numpy as np
+import pandas as pd
+import streamlit as st
 
+# Configure page settings
+st.set_page_config(
+    page_title="Student Performance Predictor",
+    page_icon="🎓",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom Styling with Soft Shadows, Border-radius, and Cards
+st.markdown("""
+    <style>
+    /* Main container background tweaks */
+    .main {
+        background-color: #f8fafc;
+    }
+    
+    /* Card design with subtle multi-layer shadows */
+    .custom-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .custom-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    }
+    
+    /* Result display box */
+    .metric-box {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        border-radius: 12px;
+        padding: 24px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.35);
+        margin-top: 15px;
+    }
+    .metric-value {
+        font-size: 2.75rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.1;
+    }
+    .metric-label {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
+@st.cache_resource
+def load_knn_model(model_path="knn.pkl"):
+    """Load the pickled KNN regressor."""
+    if not os.path.exists(model_path):
+        return None
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
+    return model
+
+
+model = load_knn_model("knn.pkl")
+
+# Header section
+st.title("🎓 Student Score Predictor")
+st.markdown("Use this interface to predict student exam performance using the trained **KNN Regressor** model.")
+st.write("---")
+
+if model is None:
+    st.error("⚠️ `knn.pkl` not found! Please place the `knn.pkl` model file in the same directory as `app.py`.")
+    st.stop()
+
+# Sidebar - Demographic & Course Settings
+with st.sidebar:
+    st.header("👤 Demographics & Course")
+    age = st.slider("Age", min_value=15, max_value=60, value=21, step=1)
+    
+    gender_choice = st.selectbox("Gender", ["Female", "Male", "Other"])
+    gender_map = {"Female": 0, "Male": 1, "Other": 2}
+    gender = gender_map[gender_choice]
+    
+    course_choice = st.selectbox(
+        "Course Stream", 
+        ["Computer Science", "Engineering", "Business", "Medicine", "Arts", "Science"]
+    )
+    course_map = {
+        "Computer Science": 0,
+        "Engineering": 1,
+        "Business": 2,
+        "Medicine": 3,
+        "Arts": 4,
+        "Science": 5
+    }
+    course = course_map[course_choice]
+
+    internet_access_choice = st.radio("Internet Access", ["Yes", "No"], horizontal=True)
+    internet_access = 1 if internet_access_choice == "Yes" else 0
+
+# Main Dashboard Form
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+    st.subheader("📚 Study Routines")
+    study_hours = st.slider("Weekly Study Hours", min_value=0.0, max_value=80.0, value=15.0, step=0.5)
+    class_attendance = st.slider("Class Attendance (%)", min_value=0.0, max_value=100.0, value=85.0, step=1.0)
+    
+    study_method_choice = st.selectbox(
+        "Primary Study Method",
+        ["Self-study", "Group Study", "Online Lectures", "Tutoring / Coaching"]
+    )
+    study_method_map = {
+        "Self-study": 0,
+        "Group Study": 1,
+        "Online Lectures": 2,
+        "Tutoring / Coaching": 3
+    }
+    study_method = study_method_map[study_method_choice]
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col2:
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+    st.subheader("🛌 Health & Environment")
+    sleep_hours = st.slider("Daily Sleep Hours", min_value=2.0, max_value=12.0, value=7.0, step=0.5)
+    sleep_quality = st.select_slider("Sleep Quality Rating", options=[1, 2, 3, 4, 5], value=3)
+    facility_rating = st.select_slider("Campus/Facility Rating", options=[1, 2, 3, 4, 5], value=4)
+    exam_difficulty = st.select_slider("Expected Exam Difficulty", options=[1, 2, 3, 4, 5], value=3)
+    st.markdown('</div>', unsafe_allow_html=True)
