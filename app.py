@@ -34,7 +34,7 @@ st.markdown("""
         background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
         border-radius: 14px;
         padding: 30px;
-        color: red;
+        color: white;
         text-align: center;
         box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
         margin: 15px 0px 25px 0px;
